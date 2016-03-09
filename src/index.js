@@ -129,6 +129,15 @@ module.exports = function(options) {
 
   }
 
+  // Proxy requests
+  for (var i = 0, len = config.proxies.length; i < len; i++) {
+    var proxyoptions = url.parse(config.proxies[i].target);
+    if (config.proxies[i].hasOwnProperty('options')) {
+      extend(proxyoptions, config.proxies[i].options);
+    }
+    app.use(config.proxies[i].source, proxy(proxyoptions));
+  }
+
   // middlewares
   if (typeof config.middleware === 'function') {
     app.use(config.middleware);
@@ -138,15 +147,6 @@ module.exports = function(options) {
       .forEach(function(m) {
         app.use(m);
       });
-  }
-
-  // Proxy requests
-  for (var i = 0, len = config.proxies.length; i < len; i++) {
-    var proxyoptions = url.parse(config.proxies[i].target);
-    if (config.proxies[i].hasOwnProperty('options')) {
-      extend(proxyoptions, config.proxies[i].options);
-    }
-    app.use(config.proxies[i].source, proxy(proxyoptions));
   }
 
   if (config.directoryListing.enable) {
